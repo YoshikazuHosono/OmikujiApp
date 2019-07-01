@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">τの会のホソノ@おみくじアプリ</string>
     <string name="bt_action">うらなう！</string>
+    <string name="content1">恋愛運爆上がり！</string>
+    <string name="content2">金運マジ上げ！</string>
+    <string name="content3">気分次第じゃね</string>
+    <string name="content4">人の話はよく聞くこと</string>
 </resources>

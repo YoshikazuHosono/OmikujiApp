@@ -2,20 +2,38 @@ package com.example.omikujiapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
+import kotlinx.android.synthetic.main.fortune.*
 import kotlinx.android.synthetic.main.omikuji.*
 import kotlinx.android.synthetic.main.omikuji_act.*
 import java.util.*
 
 class OmikujiAct : AppCompatActivity() {
 
+    val omikujiShelf = Array<OmikujiParts>(20) {
+        OmikujiParts(R.drawable.result2, R.string.content1)
+    }
+
+    var omikujiNumber = -1;
+
+    val omikujiBox = OmikujiBox()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.omikuji)
+
+        omikujiBox.omikujiView = imageView
+
+        omikujiShelf[0].drawID = R.drawable.result1
+        omikujiShelf[0].fortuneID = R.string.content2
+        omikujiShelf[1].drawID = R.drawable.result3
+        omikujiShelf[1].fortuneID = R.string.content3
+        omikujiShelf[2].fortuneID = R.string.content4
 
 //        val rand = Random()
 //        val number = rand.nextInt(20)
@@ -32,22 +50,26 @@ class OmikujiAct : AppCompatActivity() {
 //        }
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.action == MotionEvent.ACTION_DOWN) {
+            if (omikujiNumber < 0 && !omikujiBox.finish) {
+                drowResult()
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
     fun onButtonClick(v: View) {
-        val translate = TranslateAnimation(0f, 0f, 0f, -200f)
-        translate.repeatMode = Animation.REVERSE
-        translate.repeatCount = 5
-        translate.duration = 100
-
-        val rotate = RotateAnimation(0f, -36f, imageView.width / 2f, imageView.width / 2f)
-        rotate.duration = 200
-
-        val set = AnimationSet(true)
-        set.addAnimation(translate)
-        set.addAnimation(rotate)
-
-        imageView.startAnimation(set)
-
+        omikujiBox.shake()
 //        imageView.setImageResource(R.drawable.result1)
     }
 
+    fun drowResult() {
+        omikujiNumber = omikujiBox.number
+        val omikujiResult = omikujiShelf[omikujiNumber]
+        setContentView(R.layout.fortune)
+        imageView2.setImageResource(omikujiResult.drawID)
+        textView.setText(omikujiResult.fortuneID)
+
+    }
 }
