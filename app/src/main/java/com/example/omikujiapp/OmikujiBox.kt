@@ -1,5 +1,6 @@
 package com.example.omikujiapp
 
+import android.hardware.SensorEvent
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationSet
@@ -12,6 +13,10 @@ class OmikujiBox : AnimationListener {
     lateinit var omikujiView: ImageView
 
     var finish = false
+
+    var beforeTime = 0L
+
+    var beforeValue = 0F
 
     val number: Int
         get() {
@@ -47,4 +52,22 @@ class OmikujiBox : AnimationListener {
 
         finish = true
     }
+
+    fun checkShake(event: SensorEvent?): Boolean {
+        val nowTime = System.currentTimeMillis()
+        val diffTime = nowTime - beforeTime
+        val nowValue = (event?.values?.get(0) ?: 0F) + (event?.values?.get(1) ?: 0F)
+
+        if (1500 < diffTime) {
+            val speed = Math.abs(nowValue - beforeValue) / diffTime * 10000
+            beforeTime = nowTime
+            beforeValue = nowValue
+
+            if (50 < speed) {
+                return true
+            }
+        }
+        return false
+    }
+
 }

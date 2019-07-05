@@ -7,12 +7,12 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Vibrator
 import android.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.fortune.*
 import kotlinx.android.synthetic.main.omikuji.*
@@ -29,10 +29,13 @@ class OmikujiAct : AppCompatActivity(), SensorEventListener {
 
     lateinit var manager: SensorManager
 
+    lateinit var vibrator: Vibrator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.omikuji)
 
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
@@ -63,10 +66,16 @@ class OmikujiAct : AppCompatActivity(), SensorEventListener {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
             if (omikujiNumber < 0 && omikujiBox.finish) {
+                val pref = PreferenceManager.getDefaultSharedPreferences(this)
+                if (pref.getBoolean("vibration", false)) {
+                    vibrator.vibrate(50L)
+                }
+
                 drowResult()
-            } else {
-                omikujiBox.shake()
             }
+//            else {
+//                omikujiBox.shake()
+//            }
         }
         return super.onTouchEvent(event)
     }
@@ -108,11 +117,11 @@ class OmikujiAct : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        val value = event?.values?.get(0)
 
-        if (value != null && 10 < value) {
-            Toast.makeText(this, "加速度：${value}", Toast.LENGTH_LONG).show()
+        if (omikujiNumber < 0 && omikujiBox.checkShake(event)) {
+            omikujiBox.shake()
         }
+
     }
 
 }
