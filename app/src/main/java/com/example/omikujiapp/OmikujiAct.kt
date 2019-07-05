@@ -1,31 +1,44 @@
 package com.example.omikujiapp
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
+import android.preference.PreferenceManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationSet
-import android.view.animation.RotateAnimation
-import android.view.animation.TranslateAnimation
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.fortune.*
 import kotlinx.android.synthetic.main.omikuji.*
-import kotlinx.android.synthetic.main.omikuji_act.*
-import java.util.*
 
-class OmikujiAct : AppCompatActivity() {
+class OmikujiAct : AppCompatActivity(), SensorEventListener {
 
     val omikujiShelf = Array<OmikujiParts>(20) {
-        OmikujiParts(R.drawable.result2, R.string.content1)
+        OmikujiParts(R.drawable.result2, R.string.content4)
     }
 
-    var omikujiNumber = -1;
+    private var omikujiNumber = -1
 
-    val omikujiBox = OmikujiBox()
+    private val omikujiBox = OmikujiBox()
+
+    lateinit var manager: SensorManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.omikuji)
+
+        manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val value = pref.getBoolean("button", false)
+
+        button.visibility = if (value) View.VISIBLE else View.INVISIBLE
 
         omikujiBox.omikujiView = imageView
 
@@ -34,37 +47,55 @@ class OmikujiAct : AppCompatActivity() {
         omikujiShelf[1].drawID = R.drawable.result3
         omikujiShelf[1].fortuneID = R.string.content3
         omikujiShelf[2].fortuneID = R.string.content4
+    }
 
-//        val rand = Random()
-//        val number = rand.nextInt(20)
-//
-//        val omikujiAry = Array<String>(20, { "吉" })
-//        omikujiAry[0] = "大吉"
-//        omikujiAry[19] = "凶"
-//
-//        val str = omikujiAry[number]
-//        hello_view.text = str
-//
-//        for (omikuji in omikujiAry) {
-//            println(omikuji)
-//        }
+    override fun onPause() {
+        super.onPause()
+        manager.unregisterListener(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
-            if (omikujiNumber < 0 && !omikujiBox.finish) {
+            if (omikujiNumber < 0 && omikujiBox.finish) {
                 drowResult()
+            } else {
+                omikujiBox.shake()
             }
         }
         return super.onTouchEvent(event)
     }
 
-    fun onButtonClick(v: View) {
-        omikujiBox.shake()
-//        imageView.setImageResource(R.drawable.result1)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
-    fun drowResult() {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        val toast = Toast.makeText(this, item.title, Toast.LENGTH_LONG)
+//        toast.show()
+
+        var intent: Intent
+        if (item.itemId == R.id.item1) {
+            intent = Intent(this, OmikujiPreferenceActivity::class.java)
+        } else {
+            intent = Intent(this, AboutAct::class.java)
+        }
+        startActivity(intent)
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun onButtonClick() {
+        omikujiBox.shake()
+    }
+
+    private fun drowResult() {
         omikujiNumber = omikujiBox.number
         val omikujiResult = omikujiShelf[omikujiNumber]
         setContentView(R.layout.fortune)
@@ -72,4 +103,16 @@ class OmikujiAct : AppCompatActivity() {
         textView.setText(omikujiResult.fortuneID)
 
     }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        val value = event?.values?.get(0)
+
+        if (value != null && 10 < value) {
+            Toast.makeText(this, "加速度：${value}", Toast.LENGTH_LONG).show()
+        }
+    }
+
 }

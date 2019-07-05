@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.omikujiapp">
+          package="com.example.omikujiapp"
+          android:versionCode="1"
+          android:versionName="Hosonon">
 
     <application
             android:allowBackup="true"
@@ -9,13 +11,19 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+
         <activity android:name=".OmikujiAct">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".OmikujiPreferenceActivity"></activity>
+
+        <activity
+                android:name=".AboutAct"
+                android:theme="@style/AboutTheme"></activity>
     </application>
 
 </manifest>

@@ -6,7 +6,6 @@ import android.view.animation.AnimationSet
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
-import kotlinx.android.synthetic.main.omikuji.*
 import java.util.*
 
 class OmikujiBox : AnimationListener {
@@ -16,7 +15,7 @@ class OmikujiBox : AnimationListener {
 
     val number: Int
         get() {
-            return Random().nextInt(20)
+            return Random().nextInt(3)
         }
 
     override fun onAnimationRepeat(p0: Animation?) {
